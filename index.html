@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fundamental Equity Analysis</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
+            --border: #ccc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1550px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* TAB NAVIGATION */
+        .tab-bar {
+            display: flex;
+            background: var(--primary);
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .tab-btn {
+            padding: 18px 30px;
+            border: none;
+            background: none;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.7;
+            transition: 0.3s;
+            font-size: 15px;
+        }
+
+        .tab-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* TABLE STYLING */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            font-size: 13px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        th {
+            background: #f2f2f2;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .v-cell {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .approved {
+            color: var(--success);
+        }
+
+        .not-approved {
+            color: var(--danger);
+        }
+
+        /* DCF MODULE LAYOUT */
+        .dcf-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 25px;
+        }
+
+        .sidebar-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .card h4 {
+            margin: 0 0 10px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            font-size: 14px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .input-row label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-row input {
+            width: 110px;
+            padding: 6px;
+            text-align: right;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .result-highlight {
+            background: #e3f2fd;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #b6d4fe;
+        }
+
+        .projection-container {
+            overflow-x: auto;
+        }
+
+        .proj-table {
+            font-size: 11px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .proj-table th {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+        }
+
+        .proj-table td {
+            text-align: center;
+        }
+
+        .valuation-summary {
+            background: var(--primary);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .valuation-summary h2 {
+            margin: 5px 0;
+            font-size: 42px;
+            color: var(--accent);
+        }
+
+        .bands {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+
+        .bands span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eee;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .clear-btn {
+            cursor: pointer;
+            padding: 8px 15px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: #e74c3c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab(event, 'checklistTab')">THE QUALITATIVE CHECKLIST</button>
+            <button class="tab-btn" onclick="switchTab(event, 'dcfTab')">DCF VALUATION MODULE</button>
+        </div>
+
+        <div id="checklistTab" class="tab-content active">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">S.No</th>
+                        <th style="width: 25%;">Question</th>
+                        <th style="width: 50%;">The rationale behind the question</th>
+                        <th style="width: 100px;">Check</th>
+                        <th style="width: 140px;">Check Position</th>
+                    </tr>
+                </thead>
+                <tbody id="checklistBody"></tbody>
+            </table>
+            <div class="footer-info">
+                <div id="score-text" style="font-weight: bold; font-size: 16px;">Score: 0 / 18 Approved</div>
+                <button onclick="resetChecklist()"
+                    style="cursor:pointer; padding: 8px 20px; background: #333; color: #fff; border:none; border-radius:4px; font-weight:bold;">Clear
+                    Checklist Data</button>
+            </div>
+        </div>
+
+        <div id="dcfTab" class="tab-content">
+            <div class="dcf-grid">
+                <div class="sidebar-inputs">
+                    <div class="card">
+                        <h4>1. FCF History (INR Crs)</h4>
+                        <div class="input-row"><label>FCF (Year -2)</label><input type="number" id="fcf_m2" value="450"
+                                oninput="runDCF()"></div>
+                        <div class="input-row"><label>FCF (Year -1)</label><input type="number" id="fcf_m1" value="500"
+                                oninput="runDCF()"></div>
+                        <div class="input-row"><label>FCF (Year 0)</label><input type="number" id="fcf_0" value="550"
+                                oninput="runDCF()"></div>
+                        <div class="input-row result-highlight"><label>3Y Avg Base FCF</label><span
+                                id="avgFcfDisplay">0</span></div>
+                    </div>
+
+                    <div class="card">
+                        <h4>2. Growth & Discount</h4>
+                        <div class="input-row"><label>Growth Y1-5 (%)</label><input type="number" id="g_stage1"
+                                value="15" oninput="runDCF()"></div>
+                        <div class="input-row"><label>Growth Y6-10 (%)</label><input type="number" id="g_stage2"
+                                value="10" oninput="runDCF()"></div>
+                        <div class="input-row"><label>Terminal Growth (%)</label><input type="number" id="g_terminal"
+                                value="3" oninput="runDCF()"></div>
+                        <div class="input-row"><label>Discount Rate (%)</label><input type="number" id="discount_rate"
+                                value="12" oninput="runDCF()"></div>
+                    </div>
+
+                    <div class="card">
+                        <h4>3. Capital Structure</h4>
+                        <div class="input-row"><label>Total Debt</label><input type="number" id="total_debt" value="200"
+                                oninput="runDCF()"></div>
+                        <div class="input-row"><label>Cash Balance</label><input type="number" id="cash_bal" value="100"
+                                oninput="runDCF()"></div>
+                        <div class="input-row"><label>Shares Out. (Crs)</label><input type="number" id="shares_cr"
+                                value="50" oninput="runDCF()"></div>
+                        <div class="input-row"><label>Error Leeway (%)</label><input type="number" id="leeway_pct"
+                                value="10" oninput="runDCF()"></div>
+                    </div>
+                    <button class="clear-btn" onclick="resetDCF()">Clear DCF Data</button>
+                </div>
+
+                <div class="main-projection">
+                    <div class="card">
+                        <h4>10-Year Cash Flow & Present Value Projection</h4>
+                        <div class="projection-container">
+                            <table class="proj-table">
+                                <thead>
+                                    <tr id="projHead"></tr>
+                                </thead>
+                                <tbody id="projBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="valuation-summary">
+                        <span>INTRINSIC VALUE PER SHARE</span>
+                        <h2 id="finalSharePrice">₹ 0.00</h2>
+                        <div class="bands">
+                            <span>Lower Band (Safe): <strong id="bandLow">0</strong></span>
+                            <span>Upper Band (Aggressive): <strong id="bandHigh">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const checklistItems = [
+            ["What does the company do?", "To get a basic understanding of the business.", "YES"],
+            ["Promoter backgrounds & crime check?", "To know the people behind the business. Sanity check to eliminate criminal background, intense political affiliation etc.", "YES"],
+            ["What do they manufacture?", "To know their products better, helps us get a sense of the product's demand-supply dynamics.", "YES"],
+            ["Plants & Locations?", "To get a sense of their geographic presence and potential off-balance sheet land value.", "YES"],
+            ["Plants running at full capacity?", "Gives us an idea on their operational abilities and positioning for future demand.", "YES"],
+            ["Raw material dependency?", "Helps us understand the dependency (Govt regulation, Coal, or imports).", "YES"],
+            ["Clients or end-users?", "By knowing the client base, we can get a sense of the sales cycle.", "YES"],
+            ["Who are their competitors?", "Too many competitors means margin pressure. Margins are higher in monopoly/duopoly.", "YES"],
+            ["Major shareholders?", "Identifies the promoter and institutional group. Smart money check.", "YES"],
+            ["New product launches planned?", "Innovative fire vs. losing focus red flags.", "YES"],
+            ["Expanding to different countries?", "Same rationale as above (Ambition/Scalability).", "YES"],
+            ["What is the revenue mix?", "Helps us understand which segment is the driver for future growth.", "YES"],
+            ["Do they operate under heavy regulatory environment?", "Natural entry barrier (Good) vs. innovative limitation (Bad).", "NO"],
+            ["Who are their bankers/auditors?", "Ruling out association with scandalous agencies.", "YES"],
+            ["How many employees? Labour issues?", "Gives us a sense of labour intensity and workforce stability risk.", "NO"],
+            ["What are the entry barriers?", "Helps us understand how difficult it is for new companies to eat away margins.", "YES"],
+            ["Easily replicated in low-cost country?", "If yes, the company sits on a 'time bomb' (garments, basic hardware).", "NO"],
+            ["Does the company have too many subsidiaries?", "If yes, question why? Is it a way for the company to siphon off funds?", "NO"]
+        ];
+
+        function switchTab(e, tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            e.currentTarget.classList.add('active');
+        }
+
+        function initChecklist() {
+            const body = document.getElementById('checklistBody');
+            body.innerHTML = checklistItems.map((q, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${q[0]}</strong></td>
+                    <td>${q[1]}</td>
+                    <td>
+                        <select onchange="evaluateCheck(${i}, '${q[2]}', this.value)">
+                            <option value="">-- Select --</option>
+                            <option value="YES">YES</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </td>
+                    <td id="res-${i}" class="v-cell"></td>
+                </tr>
+            `).join('');
+            updateScore();
+        }
+
+        function evaluateCheck(idx, target, current) {
+            const resCell = document.getElementById(`res-${idx}`);
+            if (current === "") {
+                resCell.innerText = ""; resCell.className = "v-cell";
+            } else if (current === target) {
+                resCell.innerText = "APPROVED"; resCell.className = "v-cell approved";
+            } else {
+                resCell.innerText = "NOT APPROVED"; resCell.className = "v-cell not-approved";
+            }
+            updateScore();
+        }
+
+        function updateScore() {
+            const approvedCount = document.querySelectorAll('.approved').length;
+            const scoreText = document.getElementById('score-text');
+            if (scoreText) scoreText.innerText = `Score: ${approvedCount} / 18 Approved`;
+        }
+
+        function resetChecklist() { initChecklist(); }
+
+        // --- DCF LOGIC ---
+        function runDCF() {
+            const f0 = parseFloat(document.getElementById('fcf_0').value) || 0;
+            const f1 = parseFloat(document.getElementById('fcf_m1').value) || 0;
+            const f2 = parseFloat(document.getElementById('fcf_m2').value) || 0;
+            const avgFcf = (f0 + f1 + f2) / 3;
+            document.getElementById('avgFcfDisplay').innerText = avgFcf.toFixed(2);
+
+            const g1 = (parseFloat(document.getElementById('g_stage1').value) || 0) / 100;
+            const g2 = (parseFloat(document.getElementById('g_stage2').value) || 0) / 100;
+            const tg = (parseFloat(document.getElementById('g_terminal').value) || 0) / 100;
+            const dr = (parseFloat(document.getElementById('discount_rate').value) || 0) / 100;
+            const debt = parseFloat(document.getElementById('total_debt').value) || 0;
+            const cash = parseFloat(document.getElementById('cash_bal').value) || 0;
+            const shares = parseFloat(document.getElementById('shares_cr').value) || 1;
+            const leeway = (parseFloat(document.getElementById('leeway_pct').value) || 0) / 100;
+
+            let totalPV = 0;
+            let runningFcf = avgFcf;
+            let tableData = { fcf: [], pv: [] };
+
+            for (let y = 1; y <= 10; y++) {
+                let growth = (y <= 5) ? g1 : g2;
+                runningFcf *= (1 + growth);
+                let pv = runningFcf / Math.pow((1 + dr), y);
+                tableData.fcf.push(runningFcf);
+                tableData.pv.push(pv);
+                totalPV += pv;
+            }
+
+            const terminalValue = (tableData.fcf[9] * (1 + tg)) / (dr - tg);
+            const pvTerminal = terminalValue / Math.pow((1 + dr), 10);
+            const enterpriseValue = totalPV + pvTerminal;
+            const equityValue = enterpriseValue - debt + cash;
+            const sharePrice = equityValue / shares;
+
+            document.getElementById('projHead').innerHTML = `<th>Row</th>` + Array.from({ length: 10 }, (_, i) => `<th>Y${i + 1}</th>`).join('') + `<th>Terminal</th>`;
+            document.getElementById('projBody').innerHTML = `
+                <tr><td><strong>FCF</strong></td>${tableData.fcf.map(v => `<td>${v.toFixed(0)}</td>`).join('')}<td>${terminalValue.toFixed(0)}</td></tr>
+                <tr style="background:#f9f9f9"><td><strong>PV</strong></td>${tableData.pv.map(v => `<td>${v.toFixed(0)}</td>`).join('')}<td>${pvTerminal.toFixed(0)}</td></tr>
+            `;
+
+            document.getElementById('finalSharePrice').innerText = "₹ " + sharePrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('bandLow').innerText = "₹ " + (sharePrice * (1 - leeway)).toFixed(2);
+            document.getElementById('bandHigh').innerText = "₹ " + (sharePrice * (1 + leeway)).toFixed(2);
+        }
+
+        function resetDCF() {
+            document.getElementById('fcf_m2').value = 450;
+            document.getElementById('fcf_m1').value = 500;
+            document.getElementById('fcf_0').value = 550;
+            document.getElementById('g_stage1').value = 15;
+            document.getElementById('g_stage2').value = 10;
+            document.getElementById('g_terminal').value = 3;
+            document.getElementById('discount_rate').value = 12;
+            document.getElementById('total_debt').value = 200;
+            document.getElementById('cash_bal').value = 100;
+            document.getElementById('shares_cr').value = 50;
+            document.getElementById('leeway_pct').value = 10;
+            runDCF();
+        }
+
+        // Initialize on load
+        window.onload = function () {
+            initChecklist();
+            runDCF();
+        };
+    </script>
+
+</body>
+
+</html>
